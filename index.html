@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0c1628">
+  <title>堆 · 动态交互练习｜Top K 推荐</title>
+  <style>
+    :root{--navy:#0c1628;--navy2:#14223a;--ink:#13223a;--muted:#66748a;--accent:#0b8dc9;--cyan:#e7f7ff;--line:#e4eaf2;--soft:#f5f8fc;--green:#0b936a;--red:#c64050;--gold:#b96b0b;--shadow:0 18px 42px rgba(7,21,46,.12);font-family:Inter,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:var(--ink)}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse 60% 30% at 85% 0,#1a3654 0%,transparent 85%),linear-gradient(145deg,#0a1425,#12213a);min-height:100vh}button{font:inherit;cursor:pointer}button:focus-visible,.node:focus-visible{outline:3px solid #ffbb47;outline-offset:4px}button:disabled{cursor:not-allowed;opacity:.55} .container{max-width:1180px;margin:auto;padding:34px 22px 52px}
+    .topline{display:flex;align-items:center;justify-content:space-between;gap:14px;color:#d8ecff;margin-bottom:15px}.eyebrow{font-size:12px;letter-spacing:.16em;font-weight:700;text-transform:uppercase}.top-chip{font-size:12px;border:1px solid #496886;border-radius:100px;padding:8px 13px;color:#c4eaff}.hero{display:flex;align-items:end;justify-content:space-between;gap:24px;margin:0 0 24px}.hero h1{font-size:clamp(28px,4vw,44px);line-height:1.18;margin:0 0 10px;color:#fff;letter-spacing:-.035em}.hero p{color:#bdcde3;line-height:1.7;margin:0;max-width:660px;font-size:15px}.hero .mark{background:#173454;color:#6cddff;border:1px solid #2d5178;padding:15px 18px;border-radius:20px;font-size:13px;font-weight:800;white-space:nowrap}
+    .layout{display:grid;grid-template-columns:minmax(0,1fr) 305px;gap:20px;align-items:start}.main{display:flex;flex-direction:column;gap:18px}.card,.sidecard{background:#fff;border-radius:21px;box-shadow:var(--shadow);overflow:hidden}.question{padding:24px 25px}.kicker{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--accent);font-size:12px;font-weight:800;letter-spacing:.07em}.task-text{font-size:18px;font-weight:700;line-height:1.75;margin:10px 0 15px}.highlight{color:#006c9f;background:#e8f7ff;border-radius:6px;padding:2px 7px}.score-pill{display:inline-flex;gap:8px;align-items:center;background:#eff6ff;border:1px solid #dbeafe;padding:8px 12px;border-radius:12px;font-size:13px}.score-pill b{font-size:20px;color:#075f9c}.steps{display:flex;gap:7px;flex-wrap:wrap}.step{font-size:12px;border:1px solid #e1e7f0;border-radius:9px;padding:7px 10px;color:#728097;background:#f8fafc}.step.current{border-color:#71cde7;color:#03688b;background:#e7f9ff;font-weight:800}.step.passed{border-color:#b6ebd8;color:#087f5d;background:#e9fcf4}
+    .visual{padding:20px 24px 25px}.visual-head{display:flex;justify-content:space-between;align-items:start;gap:8px}.section-title{font-size:15px;font-weight:800}.subtle{font-size:12px;color:var(--muted);line-height:1.6}.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:9px}.legend span{display:flex;align-items:center;gap:6px;font-size:12px;color:#68778b}.dot{display:inline-block;width:9px;height:9px;border-radius:99px;background:#d8eaf7}.dot.active{background:#f8af43}.dot.choice{background:#3f9fda}.dot.good{background:#36b694}.tree-wrap{background:linear-gradient(180deg,#f7fbff 0%,#fff 100%);border:1px solid #edf2f8;border-radius:16px;margin-top:17px;overflow:hidden}.tree{display:block;width:100%;height:auto;min-height:240px;touch-action:manipulation}.edge{stroke:#c8d6e5;stroke-width:4;stroke-linecap:round}.node{cursor:pointer;transition:transform .52s cubic-bezier(.2,.75,.17,1),opacity .26s;outline:none}.node .orb{fill:#fff;stroke:#bdcfe1;stroke-width:3;transition:fill .18s,stroke .18s}.node .num{font-size:26px;font-weight:800;fill:#162f4f;text-anchor:middle;dominant-baseline:middle}.node .nam{font-size:12px;fill:#6f8199;text-anchor:middle}.node[data-status="active"] .orb{fill:#fff2d9;stroke:#f0a638;stroke-width:5}.node[data-status="choice"] .orb{fill:#e9f7ff;stroke:#218fd1;stroke-width:4}.node[data-status="done"] .orb{fill:#e9fff4;stroke:#23ab7c;stroke-width:4}.node:hover .orb{filter:drop-shadow(0 2px 7px rgba(35,111,182,.2))}.node.flash{animation:pop .48s ease-out}@keyframes pop{0%{opacity:.3}60%{opacity:1}85%{filter:brightness(1.09)}}
+    .array-head{display:flex;justify-content:space-between;align-items:center;margin:20px 0 11px}.array{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}.array-cell{background:#f4f7fb;border:1px solid #e3e9f0;padding:10px 3px 8px;border-radius:11px;text-align:center;transition:background .2s,border .2s}.array-cell.active{background:#fff2d9;border-color:#eba339}.array-cell.choice{background:#e8f7ff;border-color:#69c0ea}.array-cell.done{background:#e9fff4;border-color:#79d4ab}.array-cell .i{display:block;font-size:11px;color:#8390a3}.array-cell .s{display:block;font-size:21px;font-weight:800;margin:3px 0;color:#193454}.array-cell .n{display:block;font-size:11px;color:#6b7a91}
+    .operate{padding:22px 25px}.operate-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.phase{display:inline-block;border-radius:8px;background:#eaf7ff;color:#046c9c;padding:5px 10px;font-size:12px;font-weight:800}.instruction{font-size:17px;font-weight:800;line-height:1.65;margin:13px 0 14px}.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:1px solid #dae4ef;border-radius:11px;background:#fff;color:#28405a;padding:11px 17px;font-size:14px;font-weight:800;transition:transform .15s,background .15s}.btn:hover:not(:disabled){transform:translateY(-1px);background:#f1f8ff}.btn.primary{color:#fff;background:#087eac;border-color:#087eac}.btn.primary:hover:not(:disabled){background:#086d97}.btn.success{background:#0d9670;border-color:#0d9670;color:#fff}.feedback{display:flex;gap:10px;align-items:flex-start;padding:13px 14px;border-radius:12px;margin-top:14px;background:#f0f7fc;border:1px solid #d9eaf7;color:#37607c;line-height:1.6;font-size:13px;min-height:47px}.feedback.correct{background:#edfff6;border-color:#bce9d2;color:#126d51}.feedback.wrong{background:#fff1f2;border-color:#f3cbd0;color:#9e3947}.feedback.hint{background:#fff8e8;border-color:#f4dca3;color:#8a5609}.fb-icon{font-weight:800;font-size:15px}
+    .side{display:flex;flex-direction:column;gap:18px}.sidecard{padding:21px}.side-heading{font-size:14px;font-weight:900;margin-bottom:14px}.new-video{border:1px solid #b7e6f4;border-radius:15px;background:linear-gradient(135deg,#e8f8ff,#f9fcff);padding:17px;display:flex;align-items:center;justify-content:space-between;gap:8px}.new-video .id{font-size:13px;font-weight:800;color:#13658c}.new-video .value{font-size:37px;line-height:1.2;color:#006da6;font-weight:900}.new-video small{font-size:11px;color:#618094}.new-video.used{background:#edfdf4;border-color:#afe3c6}.new-video.used .value{color:#18825d}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}.stats>div{background:#f6f8fb;border:1px solid #edf0f4;padding:9px 5px;text-align:center;border-radius:10px}.stats b{font-size:21px;display:block}.stats small{color:#74859b;font-size:11px}.rule{padding:10px 0;border-bottom:1px dashed #e2e9f1;font-size:13px;line-height:1.7;color:#56667a}.rule:last-of-type{border:0}.rule strong{color:#183753}.rule .badge{display:inline-flex;align-items:center;justify-content:center;width:21px;height:21px;color:#087fa9;background:#e1f5ff;border-radius:6px;font-size:12px;margin-right:7px}.rule-extra{margin-top:11px;background:#f1f6fb;padding:11px;border-radius:10px;font-size:12px;line-height:1.75;color:#5e718b}.tools{display:grid;grid-template-columns:1fr 1fr;gap:9px}.tools .btn{padding:10px 8px}.tools .full{grid-column:1/-1}.history{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:9px;max-height:180px;overflow:auto}.history li{font-size:12px;line-height:1.6;padding-left:14px;position:relative;color:#5d6e83}.history li:before{content:"";position:absolute;left:1px;top:7px;width:6px;height:6px;border-radius:50%;background:#2f9bc4}.footer{text-align:center;color:#9db5cf;margin-top:24px;font-size:12px;line-height:1.8}
+    .finish-banner{display:none;margin:14px 0 0;border-radius:12px;padding:13px 15px;background:#e9fcf3;border:1px solid #a5e5c8;color:#12694f;line-height:1.7;font-size:14px}.finish-banner.show{display:block}.finish-banner strong{display:block;font-size:16px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+    @media(max-width:900px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.sidecard:last-child{grid-column:1/-1}.hero .mark{display:none}}@media(max-width:570px){.container{padding:20px 12px 34px}.hero h1{font-size:29px}.question,.visual,.operate,.sidecard{padding:17px}.card,.sidecard{border-radius:16px}.side{grid-template-columns:1fr}.sidecard:last-child{grid-column:auto}.array{gap:4px}.array-cell .s{font-size:17px}.array-cell .n,.array-cell .i{font-size:10px}.array-cell{padding:7px 1px}.tree{min-height:170px}.steps{gap:5px}.step{padding:6px;font-size:11px}.visual-head{flex-wrap:wrap}.question .task-text{font-size:16px}.instruction{font-size:15px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="topline"><div class="eyebrow">DATA STRUCTURES · INTERACTIVE LAB</div><div class="top-chip">可点击 · 有反馈 · 可重复练习</div></div>
+  <div class="hero"><div><h1>堆：动态交互练习</h1><p>你就是短视频推荐算法的工程师。通过点击堆中的节点，亲手维护 Top K 小顶堆，理解比较、替换与下沉。</p></div><div class="mark">MIN HEAP / TOP K</div></div>
+  <div class="layout">
+    <main class="main">
+      <section class="card question" aria-labelledby="questionTitle">
+        <div class="kicker"><span id="questionTitle">情境题 · 短视频推荐系统</span><span id="questionNo">第 01 题</span></div>
+        <div class="task-text">系统要保留得分最高的 <span class="highlight">7 条视频</span>。当前 7 条视频以<strong>小顶堆</strong>存储；现在来了一条新视频。请判断它能否进入 Top 7，并完成堆的调整。</div>
+        <div class="steps" aria-label="练习进度"><span class="step current" id="step0">① 判断</span><span class="step" id="step1">② 替换</span><span class="step" id="step2">③ 下沉</span><span class="step" id="step3">④ 完成</span></div>
+      </section>
+      <section class="card visual" aria-labelledby="treeTitle">
+        <div class="visual-head"><div><div class="section-title" id="treeTitle">堆的二叉树结构</div><div class="subtle">点击圆形节点操作；交换后节点会移动到新位置。</div></div><div class="subtle" style="text-align:right">父节点 ≤ 子节点<br>数组下标从 0 开始</div></div>
+        <div class="legend"><span><i class="dot active"></i>当前下沉节点</span><span><i class="dot choice"></i>可比较的子节点</span><span><i class="dot good"></i>已完成</span></div>
+        <div class="tree-wrap">
+          <svg id="tree" class="tree" viewBox="0 0 1000 400" role="group" aria-label="可交互的小顶堆二叉树">
+            <g id="edges" aria-hidden="true"></g><g id="nodes"></g>
+          </svg>
+        </div>
+        <div class="array-head"><span class="section-title">堆的数组表示</span><span class="subtle">树与数组实时同步</span></div>
+        <div id="array" class="array" aria-label="数组形式的小顶堆"></div>
+      </section>
+      <section class="card operate" aria-labelledby="interactionTitle">
+        <div class="operate-top"><div class="section-title" id="interactionTitle">你的操作</div><span id="phaseTag" class="phase">步骤 1 / 4</span></div>
+        <div id="instruction" class="instruction">新的推荐分数与堆顶比较，应该怎么处理？</div>
+        <div id="actions" class="actions"></div>
+        <div id="feedback" class="feedback" role="status" aria-live="polite"><span class="fb-icon">ℹ</span><span id="feedbackText">提示：Top K 用小顶堆，堆顶始终是当前保留视频中分数最低的一条。</span></div>
+        <div id="finishBanner" class="finish-banner" aria-live="polite"></div>
+      </section>
+    </main>
+    <aside class="side">
+      <section class="sidecard"><div class="side-heading">新到达的视频</div><div class="new-video" id="newVideo"><div><div class="id" id="candidateName">视频 H</div><small id="candidateState">等待判断</small></div><div style="text-align:right"><div class="value" id="candidateValue">95</div><small>AI 预测分数</small></div></div><div class="stats"><div><b id="correctCount">0</b><small>正确操作</small></div><div><b id="swapCount">0</b><small>交换次数</small></div><div><b id="errorCount">0</b><small>尝试纠错</small></div></div></section>
+      <section class="sidecard"><div class="side-heading">你需要掌握的规则</div><div class="rule"><span class="badge">1</span><strong>Top K：</strong>新分数大于堆顶，才有机会替换当前最低分。</div><div class="rule"><span class="badge">2</span><strong>小顶堆：</strong>每个父节点都不大于它的两个子节点。</div><div class="rule"><span class="badge">3</span><strong>向下调整：</strong>需要交换时，选择两个孩子中分数更小的那个。</div><div class="rule-extra">数组关系：左孩子 = 2i + 1；右孩子 = 2i + 2。<br>注意：小顶堆<strong>不等于</strong>整个数组从小到大排好序。</div></section>
+      <section class="sidecard"><div class="side-heading">练习工具</div><div class="tools"><button class="btn" type="button" id="hintBtn">💡 给我提示</button><button class="btn" type="button" id="resetBtn">↺ 重做本题</button><button class="btn primary full" type="button" id="newBtn">⟳ 随机生成下一题</button></div></section>
+      <section class="sidecard"><div class="side-heading">操作记录</div><ol class="history" id="history"><li>题目已开始。先比较新视频与堆顶。</li></ol></section>
+    </aside>
+  </div>
+  <div class="footer">纯 HTML + CSS + JavaScript，无需联网 · 支持电脑和手机 · 点击 / Enter / 空格均可交互</div>
+</div>
+<script>
+(() => {
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const positions=[{x:500,y:72},{x:270,y:188},{x:730,y:188},{x:145,y:329},{x:395,y:329},{x:605,y:329},{x:855,y:329}];
+  const starter=[62,73,68,86,78,92,84].map((score,i)=>({score,id:String.fromCharCode(65+i)}));
+  const initialCandidate={score:95,id:'H'};
+  let round=1, seedHeap=clone(starter), seedCandidate={...initialCandidate};
+  let heap=[],candidate=null,phase='decide',focus=0,correct=0,errors=0,swaps=0,log=[];
+  let initialized=false;const groups=new Map();
+  const svgNS='http://www.w3.org/2000/svg';
+  function clone(v){return v.map(x=>({...x}));}
+  function minChild(i){const a=2*i+1,b=a+1;if(a>=heap.length)return -1;return b<heap.length&&heap[b].score<heap[a].score?b:a;}
+  function appendLog(msg){log.unshift(msg);log=log.slice(0,6);$('history').replaceChildren(...log.map(s=>{const li=document.createElement('li');li.textContent=s;return li;}));}
+  function feedback(text,type='info'){$('feedback').className='feedback'+(type==='info'?'':' '+type);$('feedback').querySelector('.fb-icon').textContent=type==='correct'?'✓':type==='wrong'?'!':type==='hint'?'💡':'ℹ';$('feedbackText').textContent=text;}
+  function mistake(text){errors++;feedback(text,'wrong');renderStats();}
+  function advance(){correct++;renderStats();}
+  function renderStats(){$('correctCount').textContent=correct;$('errorCount').textContent=errors;$('swapCount').textContent=swaps;}
+  function makeSvg(tag,attrs={}){const el=document.createElementNS(svgNS,tag);for(const [k,v] of Object.entries(attrs))el.setAttribute(k,v);return el;}
+  function buildEdges(){const edges=$('edges');edges.replaceChildren();for(let i=1;i<7;i++){const p=Math.floor((i-1)/2);edges.append(makeSvg('line',{x1:positions[p].x,y1:positions[p].y,x2:positions[i].x,y2:positions[i].y,class:'edge'}));}}
+  function nodeStatus(i){if(phase==='done')return 'done';if(phase==='sift'){if(i===focus)return 'active';if(i===2*focus+1||i===2*focus+2)return 'choice';}if(phase==='replace'&&i===0)return 'active';if(phase==='decide'&&i===0)return 'active';return '';}
+  function createNode(item){const g=makeSvg('g',{class:'node',role:'button',tabindex:'0'});const orb=makeSvg('circle',{r:47,class:'orb'});const num=makeSvg('text',{class:'num',y:'-6'});const nam=makeSvg('text',{class:'nam',y:'27'});g.append(orb,num,nam);g.addEventListener('click',()=>onNode(Number(g.dataset.index)));g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();onNode(Number(g.dataset.index));}});return g;}
+  function renderTree(){const seen=new Set();for(let i=0;i<heap.length;i++){const item=heap[i];seen.add(item.id);let g=groups.get(item.id);if(!g){g=createNode(item);groups.set(item.id,g);$('nodes').append(g);g.style.transition='none';g.style.transform=`translate(${positions[i].x}px, ${positions[i].y}px)`;g.getBoundingClientRect();requestAnimationFrame(()=>{g.style.transition='';});}g.dataset.index=i;g.dataset.status=nodeStatus(i);g.setAttribute('aria-label',`数组下标 ${i}，视频 ${item.id}，分数 ${item.score}${i===focus&&phase==='sift'?'，当前下沉节点':''}`);g.querySelector('.num').textContent=item.score;g.querySelector('.nam').textContent='视频 '+item.id;g.style.transform=`translate(${positions[i].x}px, ${positions[i].y}px)`;}for(const [id,g] of groups){if(!seen.has(id)){g.remove();groups.delete(id);}}}
+  function renderArray(){const root=$('array');root.replaceChildren(...heap.map((item,i)=>{const c=document.createElement('div');c.className='array-cell '+nodeStatus(i);c.innerHTML=`<span class="i">[${i}]</span><span class="s"></span><span class="n"></span>`;c.querySelector('.s').textContent=item.score;c.querySelector('.n').textContent='视频 '+item.id;return c;}));}
+  function actionButton(label,fn,style=''){const b=document.createElement('button');b.className='btn '+style;b.type='button';b.textContent=label;b.addEventListener('click',fn);return b;}
+  function renderActions(){const actions=$('actions');actions.replaceChildren();let instruction='',tag='',step=0;
+    if(phase==='decide'){step=0;tag='步骤 1 / 4';instruction='新视频分数 '+candidate.score+'，堆顶最低分 '+heap[0].score+'。新视频应该进入 Top 7 吗？';actions.append(actionButton('✓ 保留新视频，替换堆顶',()=>decide(true),'primary'),actionButton('✕ 舍弃新视频，堆不变',()=>decide(false)));}
+    if(phase==='replace'){step=1;tag='步骤 2 / 4';instruction='判断正确！请点击树中最上方的堆顶节点，将其替换为新视频 '+candidate.score+'。';}
+    if(phase==='sift'){step=2;tag='步骤 3 / 4';const child=minChild(focus);instruction=child<0?'当前节点已没有子节点。请判断是否可以结束下沉。':'当前节点为 '+heap[focus].score+'，比较它的子节点，点击应交换的节点；如果已满足小顶堆性质，则结束下沉。';actions.append(actionButton('✓ 结束下沉，提交答案',stopSift,'success'));}
+    if(phase==='done'){step=3;tag='已完成 ✓';instruction='本题完成！你已经成功维护 Top 7 小顶堆。';actions.append(actionButton('⟳ 再来一题',newRound,'primary'));}
+    $('instruction').textContent=instruction;$('phaseTag').textContent=tag;
+    for(let i=0;i<4;i++){$('step'+i).className='step'+(i<step?' passed':i===step?' current':'');}
+    const candidateState=phase==='done'?(heap.some(x=>x.id===candidate.id)?'已进入 Top 7':'本次未入选'):phase==='decide'?'等待你的判断':phase==='replace'?'准备替换堆顶':'正在调整堆';
+    $('candidateState').textContent=candidateState;$('newVideo').classList.toggle('used',phase==='done'&&heap.some(x=>x.id===candidate.id));
+    $('candidateValue').textContent=candidate.score;$('candidateName').textContent='视频 '+candidate.id;
+  }
+  function render(){renderTree();renderArray();renderStats();renderActions();}
+  function decide(keep){if(phase!=='decide')return;const shouldKeep=candidate.score>heap[0].score;if(keep!==shouldKeep){mistake(shouldKeep?`再想一想：${candidate.score} 大于堆顶 ${heap[0].score}，意味着新视频比当前最低分更好，应该保留。`:`再想一想：${candidate.score} 不大于堆顶 ${heap[0].score}，因此它无法进入当前得分最高的 7 条视频。`);return;}
+    advance();if(!keep){appendLog(`${candidate.score} ≤ ${heap[0].score}：舍弃新视频`);finish(`正确！${candidate.score} 不高于堆顶 ${heap[0].score}，无需修改堆。`);return;}
+    phase='replace';appendLog(`${candidate.score} > ${heap[0].score}：允许入堆`);feedback('判断正确。Top K 只需要淘汰当前保留集合中分数最低的视频，请点击树的堆顶。','correct');render();}
+  function onNode(i){if(!Number.isInteger(i)||i<0||i>=heap.length)return;
+    if(phase==='decide'){mistake('先在下方点击“保留”或“舍弃”，完成新视频是否入堆的判断。');return;}
+    if(phase==='replace'){if(i!==0){mistake('请点击根节点（堆顶）：Top K 替换的是当前最小分，而不是其他节点。');return;}const old=heap[0];heap[0]={...candidate};phase='sift';focus=0;advance();appendLog(`将堆顶 ${old.score} 替换为 ${candidate.score}`);feedback('替换成功！现在从堆顶开始下沉。点击分数更小的子节点完成交换。','correct');render();return;}
+    if(phase==='sift'){const child=minChild(focus);if(child<0||heap[focus].score<=heap[child].score){mistake('此时当前节点已经满足小顶堆性质，不需要再交换。请点击“结束下沉”。');return;}
+      const l=2*focus+1,r=l+1;if(i!==l&&i!==r){mistake('只能与当前节点的直接子节点交换。图中蓝色圆点表示可比较的子节点。');return;}
+      if(i!==child){mistake(`应选择分数更小的孩子：${heap[child].score}。这样交换后才能保持小顶堆性质。`);return;}
+      const before=heap[focus].score,after=heap[i].score;[heap[focus],heap[i]]=[heap[i],heap[focus]];focus=i;swaps++;advance();appendLog(`交换 ${before} ↔ ${after}，当前下沉位置 [${focus}]`);feedback(`操作正确：${before} 与 ${after} 交换。继续检查 ${before} 是否还需要下沉。`,'correct');render();return;}
+    if(phase==='done')feedback('本题已完成。点击“随机生成下一题”继续练习。','info');}
+  function stopSift(){if(phase!=='sift')return;const child=minChild(focus);if(child>=0&&heap[focus].score>heap[child].score){mistake(`还不能停止：${heap[focus].score} 大于子节点 ${heap[child].score}，必须先与较小的子节点交换。`);return;}
+    advance();appendLog('当前节点满足小顶堆性质，结束下沉');finish('判断正确！当前节点不大于其任何子节点，小顶堆性质恢复。');}
+  function validHeap(arr){return arr.every((v,i)=>i===0||arr[Math.floor((i-1)/2)].score<=v.score);}
+  function finish(msg){phase='done';const good=validHeap(heap);if(!good){feedback('检测到堆性质异常，请重做本题。','wrong');return;}
+    feedback(msg,'correct');const accepted=heap.some(x=>x.id===candidate.id);$('finishBanner').classList.add('show');$('finishBanner').innerHTML='<strong>🎉 恭喜，挑战完成！</strong><span></span>';$('finishBanner').querySelector('span').textContent=`${accepted?'新视频已入选':'新视频没有入选'}，当前 Top 7 的最低分为 ${heap[0].score}。本题完成 ${swaps} 次节点交换，出现 ${errors} 次纠错。注意堆不要求整个数组有序。`;render();}
+  function hint(){if(phase==='decide')feedback(`比较新分数 ${candidate.score} 与堆顶 ${heap[0].score}：只有新分数更大，才应替换堆顶。`,'hint');else if(phase==='replace')feedback('点击树中最上方的黄色节点，也就是数组下标 [0]。','hint');else if(phase==='sift'){const child=minChild(focus);if(child<0)feedback('当前节点是叶子节点，没有孩子，因此可结束下沉。','hint');else if(heap[focus].score<=heap[child].score)feedback(`当前分数 ${heap[focus].score} ≤ 较小孩子 ${heap[child].score}，可以结束下沉。`,'hint');else feedback(`比较当前分数 ${heap[focus].score} 和两个子节点。点击分数为 ${heap[child].score} 的蓝色子节点与当前节点交换。`,'hint');}else feedback('你已完成本题！可以重做或挑战随机新题。','correct');}
+  function start(){heap=clone(seedHeap);candidate={...seedCandidate};phase='decide';focus=0;correct=0;errors=0;swaps=0;log=[];$('questionNo').textContent='第 '+String(round).padStart(2,'0')+' 题';$('finishBanner').classList.remove('show');appendLog('题目已开始。先比较新视频与堆顶。');feedback('提示：小顶堆堆顶是当前 Top 7 中分数最低的那条视频。');render();}
+  function randint(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+  function buildRandom(){const selected=new Set();while(selected.size<7)selected.add(randint(45,94));let h=[];let i=0;for(const score of selected){h.push({score,id:String.fromCharCode(65+i++)});let p=h.length-1;while(p>0){const parent=Math.floor((p-1)/2);if(h[parent].score<=h[p].score)break;[h[parent],h[p]]=[h[p],h[parent]];p=parent;}}return h;}
+  function newRound(){round++;seedHeap=buildRandom();const root=seedHeap[0].score;const keep=Math.random()<.78;const score=keep?randint(root+1,99):randint(28,root);seedCandidate={score,id:'H'};start();}
+  $('hintBtn').addEventListener('click',hint);$('resetBtn').addEventListener('click',start);$('newBtn').addEventListener('click',newRound);buildEdges();start();
+})();
+</script>
+</body>
+</html>
